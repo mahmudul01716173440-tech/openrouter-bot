@@ -15,9 +15,14 @@ import (
 )
 
 func main() {
-	err := lang.LoadTranslations("./lang/")
+	err := lang.LoadTranslations()
 	if err != nil {
 		log.Fatalf("Error loading translations: %v", err)
+	}
+
+	manager, err := config.NewManager("./config.yaml")
+	if err != nil {
+		log.Fatalf("Error initializing config manager: %v", err)
 	}
 
 	manager, err := config.NewManager("./config.yaml")
