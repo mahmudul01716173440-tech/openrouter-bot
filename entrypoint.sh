@@ -1,6 +1,5 @@
 #!/bin/sh
 
-# Railway-র ভেরিয়েবলগুলো থেকে .env ফাইল বানানো
 echo "API_KEY=$API_KEY" > .env
 echo "TELEGRAM_BOT_TOKEN=$TELEGRAM_BOT_TOKEN" >> .env
 echo "MODEL=$MODEL" >> .env
@@ -12,7 +11,6 @@ echo "TEMPERATURE=$TEMPERATURE" >> .env
 echo "TOP_P=$TOP_P" >> .env
 echo "TOP_K=$TOP_K" >> .env
 echo "REPETITION_PENALTY=$REPETITION_PENALTY" >> .env
-echo "LANG=$LANG" >> .env
+echo "LANG=${LANG:-EN}" >> .env
 
-# বট চালু করা
 exec ./openrouter-bot
