@@ -74,11 +74,6 @@ func HandleChatGPTStreamResponse(bot *tgbotapi.BotAPI, client *openai.Client, me
 	user.CheckHistory(config.MaxHistorySize, config.MaxHistoryTime)
 	user.LastMessageTime = time.Now()
 
-	err := lang.LoadTranslations("./lang/")
-	if err != nil {
-		log.Fatalf("Error loading translations: %v", err)
-	}
-
 	manager, err := configs.NewManager("./config.yaml")
 	if err != nil {
 		log.Fatalf("Error initializing config manager: %v", err)
