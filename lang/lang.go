@@ -3,8 +3,6 @@ package lang
 import (
 	"embed"
 	"encoding/json"
-	"log"
-	"path/filepath"
 	"strings"
 )
 
@@ -13,18 +11,17 @@ var translationFiles embed.FS
 
 var translations map[string]map[string]interface{}
 
-func LoadTranslations(langDir string) error {
+func LoadTranslations(_ string) error {
 	translations = make(map[string]map[string]interface{})
 
-	languages := []string{"EN", "RU"}
-
-	for _, language := range languages {
+	for _, language := range []string{"EN", "RU"} {
 		data, err := translationFiles.ReadFile(language + ".json")
 		if err != nil {
 			return err
 		}
 
 		var langMap map[string]interface{}
+
 		if err := json.Unmarshal(data, &langMap); err != nil {
 			return err
 		}
@@ -32,16 +29,11 @@ func LoadTranslations(langDir string) error {
 		translations[language] = langMap
 	}
 
-	for _, language := range languages {
-		log.Printf("Loaded embedded translations: %s", filepath.Join(langDir, language+".json"))
-	}
-
 	return nil
 }
 
 func Translate(key string, lang string) string {
 	if translations == nil {
-		log.Println("Translations not loaded. Did you call LoadTranslations?")
 		return key
 	}
 
@@ -49,11 +41,12 @@ func Translate(key string, lang string) string {
 	value := interface{}(translations[lang])
 
 	for _, k := range keys {
-		if m, ok := value.(map[string]interface{}); ok {
-			value = m[k]
-		} else {
+		m, ok := value.(map[string]interface{})
+		if !ok {
 			return key
 		}
+
+		value = m[k]
 	}
 
 	if str, ok := value.(string); ok {
