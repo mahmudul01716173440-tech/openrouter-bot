@@ -6,12 +6,16 @@ import (
 	"strings"
 )
 
+// Embed translation files directly into the Go binary.
+// The Docker container does NOT need the lang/ folder at runtime.
+//
 //go:embed EN.json RU.json
 var translationFiles embed.FS
 
 var translations map[string]map[string]interface{}
 
-func LoadTranslations(_ string) error {
+// LoadTranslations loads all translations from the embedded JSON files.
+func LoadTranslations() error {
 	translations = make(map[string]map[string]interface{})
 
 	for _, language := range []string{"EN", "RU"} {
@@ -32,25 +36,27 @@ func LoadTranslations(_ string) error {
 	return nil
 }
 
-func Translate(key string, lang string) string {
+// Translate returns the translated text for a key.
+func Translate(key string, language string) string {
 	if translations == nil {
 		return key
 	}
 
 	keys := strings.Split(key, ".")
-	value := interface{}(translations[lang])
 
-	for _, k := range keys {
+	value := interface{}(translations[language])
+
+	for _, keyPart := range keys {
 		m, ok := value.(map[string]interface{})
 		if !ok {
 			return key
 		}
 
-		value = m[k]
+		value = m[keyPart]
 	}
 
-	if str, ok := value.(string); ok {
-		return str
+	if text, ok := value.(string); ok {
+		return text
 	}
 
 	return key
