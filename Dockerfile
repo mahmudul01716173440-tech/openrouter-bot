@@ -1,22 +1,13 @@
-# Build image
-FROM golang:1.25 AS build
+FROM alpine:latest
+
 WORKDIR /openrouter-bot
+
 COPY . .
-# Download dependencies for caching
-RUN go mod download
-# Build bot for determining os and architecture
-ARG TARGETOS TARGETARCH
-RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -o /openrouter-bot/openrouter-bot
 
-# Final image
-FROM alpine:3.22
-WORKDIR /openrouter-bot
-# Copy config and langs
-COPY --from=build /openrouter-bot/config.yaml ./
-COPY --from=build /openrouter-bot/lang/ ./lang/
-# Copy bot binary
-COPY --from=build /openrouter-bot/openrouter-bot ./
-# Creating directory for logs
-RUN mkdir logs
+RUN apk add --no-cache ca-certificates
+RUN chmod +x ./openrouter-bot
 
-ENTRYPOINT ["/openrouter-bot/openrouter-bot"]
+COPY entrypoint.sh /openrouter-bot/entrypoint.sh
+RUN chmod +x /openrouter-bot/entrypoint.sh
+
+CMD ["./entrypoint.sh"]
