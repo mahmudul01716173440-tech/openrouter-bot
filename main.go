@@ -25,11 +25,6 @@ func main() {
 		log.Fatalf("Error initializing config manager: %v", err)
 	}
 
-	manager, err := config.NewManager("./config.yaml")
-	if err != nil {
-		log.Fatalf("Error initializing config manager: %v", err)
-	}
-
 	conf := manager.GetConfig()
 
 	bot, err := tgbotapi.NewBotAPI(conf.TelegramBotToken)
