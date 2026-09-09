@@ -1,40 +1,38 @@
 # ---------- Build stage ----------
-FROM golang:1.25 AS build
+FROM golang:1.24-alpine AS builder
 
-WORKDIR /openrouter-bot
+WORKDIR /build
 
 COPY go.mod go.sum ./
 RUN go mod download
 
 COPY . .
 
-ARG TARGETOS=linux
-ARG TARGETARCH=amd64
-
-RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} \
-    go build -o /openrouter-bot/openrouter-bot .
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 \
+    go build -o /build/openrouter-bot .
 
 # ---------- Runtime stage ----------
-FROM alpine:3.22
+FROM alpine:latest
 
 WORKDIR /openrouter-bot
 
 RUN apk add --no-cache ca-certificates
 
-# Config
-COPY --from=build /openrouter-bot/config.yaml ./config.yaml
+# Bot binary
+COPY --from=builder /build/openrouter-bot ./openrouter-bot
 
 # Translation files
-COPY --from=build /openrouter-bot/lang ./lang
+COPY --from=builder /build/lang ./lang
 
-# Compiled bot
-COPY --from=build /openrouter-bot/openrouter-bot ./openrouter-bot
+# Config
+COPY --from=builder /build/config.yaml ./config.yaml
 
-# Logs
+# Entrypoint
+COPY entrypoint.sh ./entrypoint.sh
+
+# Logs directory
 RUN mkdir -p ./logs
 
-# Railway environment variables -> .env
-COPY entrypoint.sh ./entrypoint.sh
-RUN chmod +x ./entrypoint.sh ./openrouter-bot
+RUN chmod +x ./openrouter-bot ./entrypoint.sh
 
 ENTRYPOINT ["./entrypoint.sh"]
