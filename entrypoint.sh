@@ -1,16 +1,22 @@
 #!/bin/sh
 
-echo "API_KEY=$API_KEY" > .env
-echo "TELEGRAM_BOT_TOKEN=$TELEGRAM_BOT_TOKEN" >> .env
-echo "MODEL=$MODEL" >> .env
-echo "ADMIN_IDS=$ADMIN_IDS" >> .env
-echo "ALLOWED_USER_IDS=$ALLOWED_USER_IDS" >> .env
-echo "GUEST_BUDGET=$GUEST_BUDGET" >> .env
-echo "MAX_TOKENS=$MAX_TOKENS" >> .env
-echo "TEMPERATURE=$TEMPERATURE" >> .env
-echo "TOP_P=$TOP_P" >> .env
-echo "TOP_K=$TOP_K" >> .env
-echo "REPETITION_PENALTY=$REPETITION_PENALTY" >> .env
-echo "LANG=${LANG:-EN}" >> .env
+set -e
+
+# Create .env from Railway environment variables.
+# This file exists only inside the Railway container.
+cat > .env <<EOF
+API_KEY=$API_KEY
+TELEGRAM_BOT_TOKEN=$TELEGRAM_BOT_TOKEN
+MODEL=$MODEL
+ADMIN_IDS=$ADMIN_IDS
+ALLOWED_USER_IDS=$ALLOWED_USER_IDS
+GUEST_BUDGET=$GUEST_BUDGET
+MAX_TOKENS=$MAX_TOKENS
+TEMPERATURE=$TEMPERATURE
+TOP_P=$TOP_P
+TOP_K=$TOP_K
+REPETITION_PENALTY=$REPETITION_PENALTY
+LANG=${LANG:-EN}
+EOF
 
 exec ./openrouter-bot
